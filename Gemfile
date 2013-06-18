@@ -14,6 +14,10 @@ gem 'em-http-request', '~> 1.0.3', :require => 'em-http'
 gem 'thin', '~> 1.5.0'
 gem 'i18n-js', :git => 'https://github.com/fnando/i18n-js.git'
 gem 'routing-filter', '~> 0.3.1'
+gem 'json'
+gem 'open4'
+gem 'octokit'
+
 
 group :assets do
   gem 'sass-rails', '~> 3.2.5'

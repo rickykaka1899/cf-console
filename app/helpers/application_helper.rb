@@ -79,7 +79,7 @@ module ApplicationHelper
     pct = (usage / limit) * 100.00
   end
 
-  def pretty_size(size, prec = 1)
+  def pretty_size(size, prec = 1)                   #打印内存、磁盘大小为 Kb Mb Gb格式
     return "NA" unless size
     return "#{size} b" if size < 1024
     return sprintf("%.#{prec}f Kb", size / 1024.0) if size < (1024 * 1024)

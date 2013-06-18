@@ -3,7 +3,7 @@ require 'utils'
 class AppsController < ApplicationController
   def index
     begin
-      app = App.new(@cf_client)
+      app = App.new(@cf_client)                   #初始化
       @apps = Utils::FiberedIterator.map(app.find_all_apps(), configatron.reactor_iterator.concurrency) do |app_info|
         app.find(app_info[:name])
       end
@@ -13,7 +13,7 @@ class AppsController < ApplicationController
       available_memsizes.each do |key, value|
         @available_memsizes << [value, key]
       end
-      @available_frameworks = find_available_frameworks_runtimes()
+      @available_frameworks = find_available_frameworks_runtimes()                           #返回一个数组
       @available_services = find_available_services()
       if configatron.suggest.app.url
         host = @cf_target_url.split("//")[1]
@@ -29,14 +29,14 @@ class AppsController < ApplicationController
     @name = params[:name]
     @instances = params[:instances]
     @memsize = params[:memsize]
-    @type = params[:type]
+    @type = params[:type]                              #framework
     @url = params[:url]
     @service = params[:service]
-    @deployform = params[:deployform]
+    @deployform = params[:deployform]                  #git
     @gitrepo = params[:gitrepo]
     @gitbranch = params[:gitbranch]
     app_created = false
-    if @name.blank?
+    if @name.blank?                                        #判断输入是否不满足要求
       flash[:alert] = I18n.t('apps.controller.name_blank')
     elsif @instances.blank?
       flash[:alert] = I18n.t('apps.controller.instances_blank')
@@ -46,13 +46,14 @@ class AppsController < ApplicationController
       flash[:alert] = I18n.t('apps.controller.type_blank')
     elsif @url.blank?
       flash[:alert] = I18n.t('apps.controller.url_blank')
-    else
+    else                                                      #满足情况，上传
       begin
-        @name = @name.strip.downcase
-        framework, runtime = @type.split("/")
-        @url = @url.strip.gsub(/^http(s*):\/\//i, '').downcase
+        @name = @name.strip.downcase                                        #strip，删除头部和尾部的全部空白字符
+        framework, runtime = @type.split("/")                               #/ 分开，分别赋值
+        @url = @url.strip.gsub(/^http(s*):\/\//i, '').downcase            #正则匹配 ， 末尾的i 表示大小写都可接受
+                                                                             #gsub，以replace代替所有匹配的字符，这里，以空来代替http(s)://,@url=api.vcap.me。另：'' 与 "" 有区别
         app = App.new(@cf_client)
-        app.create(@name, @instances, @memsize, @url, framework, runtime, @service)
+        app.create(@name, @instances, @memsize, @url, framework, runtime, @service)        #创建app
         @new_app = [] << app.find(@name)
         flash[:notice] = I18n.t('apps.controller.app_created', :name => @name)
         app_created = true
@@ -61,7 +62,7 @@ class AppsController < ApplicationController
       end
     end
     if app_created
-      unless @gitrepo.blank?
+      unless @gitrepo.blank?                               #git上传部分
         @gitrepo = @gitrepo.strip
         if Utils::GitUtil.git_uri_valid?(@gitrepo)
           begin
@@ -371,7 +372,7 @@ class AppsController < ApplicationController
     respond_to do |format|
       format.html { redirect_to app_info_url(@name) }
       format.js {
-        render "apps/services/unbind_service"
+        #render "apps/services/unbind_service"
         flash.discard
       }
     end
@@ -463,20 +464,38 @@ class AppsController < ApplicationController
     end
   end
 
+  def upload_bits
+    @name = params[:name]
+    uploaded_io= params[:file]
+    @file = File.open(uploaded_io.tempfile)
+    if @name.blank?
+      flash[:alert] = I18n.t('apps.controller.name_blank')
+    else
+      app = App.new(@cf_client)
+      app.upload_app(@name,@file)
+      flash[:notice] = I18n.t('apps.controller.file_upload', :service => @service)
+      app.start(@name)
+    end
+    respond_to do |format|
+      format.html { redirect_to app_info_url(@name) }
+    end
+
+  end
+
   def download_bits
     @name = params[:name]
     bits_sended = false
     if @name.blank?
       flash[:alert] = I18n.t('apps.controller.name_blank')
     else
-      begin
-        app = App.new(@cf_client)
-        zipfile = app.download_app(@name)
+      #begin
+        puts ">>>>>>>>>>>>>>>>>>"+@cf_client.download_app(@name).to_s
+        zipfile = @cf_client.download_app(@name)
         send_file(zipfile, :type=>"application/zip")
         bits_sended = true
-      rescue Exception => ex
-        flash[:alert] = ex.message
-      end
+      #rescue Exception => ex
+      #  flash[:alert] = ex.message
+      #end
     end
     unless bits_sended
       respond_to do |format|

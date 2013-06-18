@@ -14,6 +14,8 @@ class UsersController < ApplicationController
     @email = params[:email]
     @password = params[:password]
     @vpassword = params[:vpassword]
+    user = User.new(@cf_client)
+
     if @email.blank?
       flash[:alert] = I18n.t('users.controller.email_blank')
     elsif @password.blank?

@@ -1,7 +1,7 @@
 ---
 applications:
   .:
-    name: cf-console
+    name: cfconsolekaka
     framework:
       name: rails3
       info:

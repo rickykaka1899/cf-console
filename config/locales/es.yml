@@ -333,7 +333,6 @@ es:
   layouts:
     header:
       welcome: "Bienvenido %{user}"
-      viewas: "Viendo como %{user} [Borrar]"
       login: "Acceder"
       logout: "Desconectarse"
       description: "Interfaz web para gestionar tus instancias de Cloud Foundry."

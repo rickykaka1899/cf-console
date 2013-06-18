@@ -6,6 +6,7 @@ class ApplicationController < ActionController::Base
 
   private
 
+
   def require_login
     begin
       @cf_client = cloudfoundry_client(cookies[:cf_target_url], cookies.signed[:cf_auth_token])
@@ -22,10 +23,6 @@ class ApplicationController < ActionController::Base
       rescue CloudFoundry::Client::Exception::Forbidden
         @cf_admin_user = false
       end
-      if cookies[:cf_proxy_user]
-        @cf_client.set_proxy_user(cookies[:cf_proxy_user])
-        @cf_proxy_user = cookies[:cf_proxy_user]
-      end
     else
       redirect_to login_url
     end
@@ -40,10 +37,7 @@ class ApplicationController < ActionController::Base
 
   def cloudfoundry_client(cf_target_url, cf_auth_token = nil)
     cf_target_url ||= CloudFoundry::Client::DEFAULT_TARGET
-    @client = CloudFoundry::Client.new({:adapter => which_faraday_adapter?, 
-                                        :target_url => cf_target_url, 
-                                        :auth_token => cf_auth_token,
-                                        :proxy_url => proxy_url})
+    @client = CloudFoundry::Client.new({:adapter => which_faraday_adapter?, :target_url => cf_target_url, :auth_token => cf_auth_token})
   end
 
   def which_faraday_adapter?
@@ -75,8 +69,20 @@ class ApplicationController < ActionController::Base
   rescue
     []
   end
-  
-  def proxy_url
-    configatron.proxy_url || ENV['https_proxy'] || ENV['HTTPS_PROXY'] || ENV['http_proxy'] || ENV['HTTP_PROXY']  
+
+  def uploadFile(file)
+    if !file.original_filename.empty?
+      @filename=getFileName(file.original_filename)
+      File.open("#{Rails.root}/public/files/#{@filename}", "wb") do |f|
+        f.write(file.read)
+      end
+      return @filename
+    end
   end
+  def getFileName(filename)
+    if !filename.nil?
+      return filename
+    end
+  end
+
 end

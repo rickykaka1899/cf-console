@@ -26,6 +26,7 @@ CfConsole::Application.routes.draw do
   put     'app/:name/unmap_url'                     => 'apps#unmap_url',      :as => :app_unmap_url
   put     'app/:name/update_bits'                   => 'apps#update_bits',    :as => :app_update_bits
   get     'app/:name/download_bits'                 => 'apps#download_bits',  :as => :app_download_bits
+  put     'app/:name/upload_bits'                 => 'apps#upload_bits',       :as => :app_upload_bits
   get     'app/:name/files/:instance/:filename'     => 'apps#files',          :as => :app_files
   get     'app/:name/view_file/:instance/:filename' => 'apps#view_file',      :as => :app_view_file
 
@@ -41,13 +42,18 @@ CfConsole::Application.routes.draw do
   get     'users'       => 'users#index',  :as => :users_info
   post    'users'       => 'users#create', :as => :user_create
   delete  'users/:name' => 'users#delete', :as => :user_delete
-  
-  get     'user/switch/:email'           => 'user#switch', :as => :user_switch, :constraints => { email: /[^\/]+/ }
-  get     'user/switchapp/:email/:name'  => 'user#switch_view_app', :as => :user_switch_app, :constraints => { email: /[^\/]+/ }
-  get     'user/clear'                   => 'user#clear', :as => :user_clear
 
   # Sessions
   get     'login'  => 'sessions#new',     :as => :login
   post    'login'  => 'sessions#create',  :as => :login
   get     'logout' => 'sessions#destroy', :as => :logout
+  get     'updateuser'  => 'sessions#updateuser',  :as => :updateuser
+  post     'updateuser'  => 'sessions#changepassword',  :as => :changepassword
+
+
+  # Register
+  get     'register'    => 'sessions#register_new', :as=> :register
+  post    'register'    => 'sessions#register',  :as=> :register
+
+
 end

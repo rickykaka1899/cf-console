@@ -36,6 +36,13 @@ class User
     @cf_client.create_user(username, password)
   end
 
+  def update(username, password)
+    raise I18n.t('users.model.email_blank') if username.blank?
+    raise I18n.t('users.model.password_blank') if password.blank?
+    @cf_client.update_user(username, password)
+  end
+
+
   def delete(username)
     raise I18n.t('users.model.email_blank') if username.blank?
     @cf_client.delete_user(username)

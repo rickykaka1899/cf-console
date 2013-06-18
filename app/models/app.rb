@@ -47,12 +47,7 @@ class App
     raise I18n.t('apps.model.name_blank') if name.blank?
     app_instances = []
     instances_info = @cf_client.app_instances(name) || {}
-    instances_stats = []
-    begin
-      instances_stats = instances_info[:instances].blank? ? [] : @cf_client.app_stats(name) || []
-    rescue Exception => ex
-      puts "stats #{name} #{ex.message}"
-    end
+    instances_stats = instances_info[:instances].blank? ? [] : @cf_client.app_stats(name) || []
     instances_info.each do |instances, instances_value|
       instances_value.each do |info|
         stats = nil
@@ -96,8 +91,8 @@ class App
   end
 
   def create(name, instances, memsize, url, framework, runtime, service)
-    raise I18n.t('apps.model.name_blank') if name.blank?
-    raise I18n.t('apps.model.name_invalid', :name => name) if (name =~ /^[\w-]+$/).nil?
+    raise I18n.t('apps.model.name_blank') if name.blank?                  #判定是否为空
+    raise I18n.t('apps.model.name_invalid', :name => name) if (name =~ /^[\w-]+$/).nil?           #匹配不在中括号内的 [0-9A-Za-z_ -]
     begin
       app_info = @cf_client.app_info(name)
     rescue
@@ -114,24 +109,30 @@ class App
     raise I18n.t('apps.model.framework_blank') if framework.blank?
     raise I18n.t('apps.model.runtime_blank') if runtime.blank?
     raise I18n.t('apps.model.framework_invalid') unless valid_framework_and_runtime?(framework, runtime)
-    manifest = {
+    manifest = {                                                     #配置文件
       :name => name,
       :instances => instances,
       :resources => {:memory => memsize},
       :uris => [url],
       :staging => {:framework => framework, :runtime => runtime},
     }
+    Rails.logger.info("------------------------------#{manifest}-----------------------------------------------")
     manifest[:services] = [service] unless service.blank?
     @cf_client.create_app(name, manifest)
+
   end
 
   def start(name)
     raise I18n.t('apps.model.name_blank') if name.blank?
     app = @cf_client.app_info(name)
+    Rails.logger.info("----------#{app}----------")
     app[:state] = "STARTED"
+    Rails.logger.info("----------#{app}----------")
     @cf_client.update_app(name, app)
+    Rails.logger.info("------------------start------------------")
     count = 0
     start_time = Time.now.to_i
+    Rails.logger.info("-------------------------#{start_time}-------------------")
     loop do
       sleep SLEEP_TIME
       break if app_started_properly(name, count > HEALTH_TICKS)
@@ -305,17 +306,31 @@ class App
     url
   end
 
+  def self.file_preview(file)
+#    file_name = File.extname(file.original_filename)
+    file_path = "#{RAILS_ROOT}/public/upload_files/temp_file/"
+    FileUtils.mkdir_p(file_path) unless File.exist?(file_path)
+    real_path = file_path + file
+    File.open(real_path) do |f|
+      f.write(file.read)
+    end
+    return file
+  end
+
+
   def upload_app(name, zipfile, resource_manifest = [])
     raise I18n.t('apps.model.name_blank') if name.blank?
     raise I18n.t('apps.model.zipfile_blank') if zipfile.blank?
+#    logger.info("---------------------------------before upload_app------------------------------------")
     @cf_client.upload_app(name, zipfile, resource_manifest)
+#    logger.info("----------------------------------------upload_app-----------------------------------")
   end
 
   def upload_app_from_git(name, gitrepo, gitbranch)
     raise I18n.t('apps.model.name_blank') if name.blank?
     raise I18n.t('apps.model.name_invalid', :name => name) if (name =~ /^[\w-]+$/).nil?
     raise I18n.t('apps.model.gitrepo_blank') if gitrepo.blank?
-    raise I18n.t('apps.model.gitbranch_blank') if gitbranch.blank?
+    I18n.t('apps.model.gitbranch_blank') if gitbranch.blank?
     app_bits_tmpdir = get_app_bits_tmpdir()
     repodir = app_bits_tmpdir.join(name).to_s
     Utils::GitUtil.git_clone(gitrepo, gitbranch, repodir)
@@ -324,7 +339,7 @@ class App
     raise I18n.t('apps.model.no_files') if files.empty?
     Utils::ZipUtil.pack_files(zipfile, files)
     files.each { |f| f[:fn] = f[:zn]}
-    upload_app(name, zipfile, files)
+   upload_app(name, zipfile, files)
   ensure
     FileUtils.rm_f(zipfile) if zipfile
     FileUtils.rm_rf(repodir, :secure => true) if repodir
@@ -382,7 +397,7 @@ class App
   end
 
   def get_app_bits_tmpdir()
-    Rails.root.join('tmp').join('app-bits')
+    Rails.root.join('public').join('files')
   end
 
   def get_files_to_pack(repodir)

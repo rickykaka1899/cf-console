@@ -140,12 +140,17 @@ en:
       size_head: "Size"
       log_title: "File \"%{filename}\" for instance %{instance} of application %{name}"
       log_head: "Log"
+      upload_bits: "Upload Application"
+      upload_help_html: "Choose zip file"
+      files: "CHOOSE FILE"
+      files_placeholder: "zip files"
     js:
       add_app: "Create Application"
       upload_bits: "Update bits"
       add_envvar: "Add Var"
       add_service: "Bind Service"
       add_url: "Map URL"
+      upload_bits: "Upload Application"
       download_bits: "Download Application"
     controller:
       url_blank: "URL cannot be blank."
@@ -176,6 +181,7 @@ en:
       filename_blank: "Filename cannot be blank."
       file_binary: "Unable to display binary files."
       file_not_found: "File not found."
+      file_upload: "File uploaded"
       no_frameworks: "No available frameworks."
       select_framework: "Select a framework ..."
       fwk_on_run: "on"
@@ -260,6 +266,11 @@ en:
     email_placeholder: "Enter your email address"
     email_help_html: "Enter your email address."
     password: "Password:"
+    password_submit: "Submit"
+    password_change: "Change your password:"
+    password_new: "New password:"
+    password_old: "Old password"
+    password_confirmation: "Confirmation:"
     password_placeholder: "Enter your password"
     password_help_html: "Enter your password."
     provider: "Cloud Foundry Provider:"
@@ -333,9 +344,9 @@ en:
   layouts:
     header:
       welcome: "Welcome %{user}"
-      viewas: "Viewing as %{user} [Clear]"
       login: "Login"
       logout: "Logout"
+      password: "Change password"
       description: "Web-based interface for your Cloud Foundry instances."
     menu:
       dashboard: "Dashboard"

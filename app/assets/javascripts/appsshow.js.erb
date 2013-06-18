@@ -227,7 +227,17 @@ $(function() {
           if (typeof app_download_bits_url == 'undefined') {
             $('.invoke-modalBox').empty().hide();
           } else {
-            $('.invoke-modalBox').html('<a href="' + app_download_bits_url + '" class="button">' + I18n.t('apps.js.download_bits') + '</a>').show();
+            $('.invoke-modalBox').html('<button class="appUPLOAD" rel="#app_upload_bits_modalBox">' + I18n.t('apps.js.upload_bits') + '</button>'
+                    + '<a href="' + app_download_bits_url + '" class="button">' + I18n.t('apps.js.download_bits') + '</a>').show();
+              appUPLOAD_trigger = $('.appUPLOAD').overlay({
+                  'closeOnClick': false,
+                  'mask': {color: '#404040', loadSpeed: 'normal', opacity: 0.7},
+                  'top': '25%',
+                  'onBeforeLoad': function(event) {
+                      $('.modalBox-flash').empty();
+                  }
+              });
+//            $('.invoke-modalBox').html('<a href="' + app_download_bits_url + '" class="button">' + I18n.t('apps.js.download_bits') + '</a>').show();
           }
         }
       }

@@ -7,11 +7,10 @@
     %ul
       - if @cf_logged_in
         %li= t('layouts.header.welcome', :user => @cf_user)
-        - if @cf_proxy_user
-          %li= link_to t('layouts.header.viewas', :user => @cf_proxy_user), user_clear_url
         %li= link_to t('layouts.header.logout'), logout_url
+        %li= link_to t('layouts.header.password'), updateuser_url
       - else
         %li= link_to t('layouts.header.login'), login_url
+        %li= link_to t('layouts.header.register'), register_url
         - if controller_name == "sessions"
           = language_selector().html_safe
-          

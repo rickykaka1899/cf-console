@@ -40,6 +40,3 @@ configatron.sprites.vendor_images = [
 
 # Set which language translations are available.
 configatron.languages.available = ["en", "es", "ca"]
-
-# If you install the app behind a proxy, set the URL for the proxy.
-configatron.proxy_url = nil 

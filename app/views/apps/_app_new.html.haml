@@ -80,7 +80,7 @@
                 .form-field-error
     .modalBox-submit= submit_tag t('apps.add_app')
 
-- if @newapp_default_urldomain
+- if @newapp_default_urldomain                  #應用默認url，js實現
   - content_for :javascripts do
     :javascript
       $(function() {

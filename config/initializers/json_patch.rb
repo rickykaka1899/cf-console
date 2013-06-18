@@ -4,3 +4,9 @@ class Fixnum
     to_s
   end
 end
+
+class Bignum
+  def to_json(options = nil)
+    to_s
+  end
+end
